@@ -19,11 +19,12 @@ jobs:
 
             - name: Build & Push Docker Image
               run: |
-                docker build -t MLOps/mlops_model:latest . # MLOps is my repo
-                docker tag MLOps/mlops_model:latest myrepo/mlops_model:${{ github.run_number }}
-                docker push MLOps/mlops_model:latest
-                docker push MLOps/mlops_model:${{ github.run_number }}
+                docker build -t orson7420/mlops_model:latest . 
+                docker tag orson7420/mlops_model:latest myrepo/mlops_model:${{ github.run_number }}
+                docker push orson7420/mlops_model:latest
+                docker push orson7420/mlops_model:${{ github.run_number }}
 
+            # SSH access to your deployment server
             - name: Deploy to Server
               run: |
                 ssh user@yourserver 'docker pull myrepo/mlops_model:latest && docker stop mlops_container || true && docker rm mlops_container || true && docker run -d --name mlops_container -p 8000:8000 myrepo/mlops_model:latest'
