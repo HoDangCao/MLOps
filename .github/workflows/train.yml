@@ -3,7 +3,7 @@ name: Retrain Model
 on:
   schedule:
     - cron: "0 0 * * 0"  # Runs every Sunday at midnight UTC
-  # workflow_dispatch:  # 👈 lets you trigger manually from the GitHub UI
+  workflow_dispatch:  # 👈 lets you trigger manually from the GitHub UI without waiting for Sunday
   push:
     paths:
       - "data/**"  # Triggers if new data is added
@@ -18,7 +18,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: "3.9"
+          python-version: "3.11"
       
       - name: Install dependencies
         run: pip install -r requirements.txt

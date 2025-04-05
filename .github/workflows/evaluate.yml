@@ -1,0 +1,45 @@
+name: Evaluate Model
+
+on:
+  schedule:
+    - cron: "0 0 * * 0"  # Runs every Sunday at midnight
+  workflow_dispatch:
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run model evaluation
+        id: eval
+        run: |
+          python evaluate.py > eval_output.txt
+          echo "DRIFT=$(grep 'DRIFT: true' eval_output.txt || echo false)" >> $GITHUB_OUTPUT
+
+      - name: Check for drift
+        if: ${{ steps.eval.outputs.DRIFT == 'true' }}
+        run: echo "Drift detected! Triggering retrain..."
+
+      - name: Trigger retraining workflow
+        if: ${{ steps.eval.outputs.DRIFT == 'true'}}
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: train.yml
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+    #   - name: Send Slack notification (optional)
+    #     run: |
+    #       curl -X POST -H 'Content-type: application/json' \
+    #         --data '{"text":"Model evaluated. Drift: '${{ steps.eval.outputs.DRIFT }}'."}' \
+    #         ${{ secrets.SLACK_WEBHOOK }}

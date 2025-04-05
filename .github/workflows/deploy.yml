@@ -25,6 +25,6 @@ jobs:
                 docker push orson7420/mlops_model:${{ github.run_number }}
 
             # SSH access to your deployment server
-            - name: Deploy to Server
-              run: |
-                ssh user@yourserver 'docker pull myrepo/mlops_model:latest && docker stop mlops_container || true && docker rm mlops_container || true && docker run -d --name mlops_container -p 8000:8000 myrepo/mlops_model:latest'
+            # - name: Deploy to Server
+            #   run: |
+            #     ssh user@yourserver 'docker pull orson7420/mlops_model:latest && docker stop mlops_container || true && docker rm mlops_container || true && docker run -d --name mlops_container -p 8000:8000 orson7420/mlops_model:latest'
