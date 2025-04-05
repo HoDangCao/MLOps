@@ -1,0 +1,29 @@
+name: Deploy Updated Model
+
+on:
+    workflow_run:
+        workflows: ["Retrain Model"]
+        types:
+            - completed
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+            
+            - name: Set up Docker
+              run: |
+                echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+            - name: Build & Push Docker Image
+              run: |
+                docker build -t MLOps/mlops_model:latest . # MLOps is my repo
+                docker tag MLOps/mlops_model:latest myrepo/mlops_model:${{ github.run_number }}
+                docker push MLOps/mlops_model:latest
+                docker push MLOps/mlops_model:${{ github.run_number }}
+
+            - name: Deploy to Server
+              run: |
+                ssh user@yourserver 'docker pull myrepo/mlops_model:latest && docker stop mlops_container || true && docker rm mlops_container || true && docker run -d --name mlops_container -p 8000:8000 myrepo/mlops_model:latest'
